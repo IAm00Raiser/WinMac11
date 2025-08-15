@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# Windows 11 Boot Camp ISO Patcher Launch Script
+# Author: Auto-generated
+# Description: Launches the Windows 11 to Windows 10 ISO patcher with dependency checks
+
+set -e  # Exit on any error
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}================================${NC}"
+echo -e "${BLUE} Windows 11 Boot Camp ISO Patcher${NC}"
+echo -e "${BLUE}================================${NC}"
+echo ""
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+echo -e "${YELLOW}📍 Working directory: ${SCRIPT_DIR}${NC}"
+echo ""
+
+# Check if main.py exists
+if [ ! -f "main.py" ]; then
+    echo -e "${RED}❌ Error: main.py not found in current directory${NC}"
+    echo -e "${RED}   Please run this script from the project directory${NC}"
+    exit 1
+fi
+
+# Check if Python 3 is installed
+if ! command -v python3 &> /dev/null; then
+    echo -e "${RED}❌ Error: Python 3 is not installed or not in PATH${NC}"
+    echo -e "${YELLOW}   Please install Python 3 first${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Python 3 found: $(python3 --version)${NC}"
+
+# Check for required Python packages
+echo -e "${YELLOW}🔍 Checking Python dependencies...${NC}"
+
+# Check for tkinter (usually built-in)
+if ! python3 -c "import tkinter" 2>/dev/null; then
+    echo -e "${RED}❌ Error: tkinter not available${NC}"
+    echo -e "${YELLOW}   On macOS: tkinter should be included with Python${NC}"
+    echo -e "${YELLOW}   Try: brew install python-tk${NC}"
+    exit 1
+fi
+
+# Check for pycdlib
+if ! python3 -c "import pycdlib" 2>/dev/null; then
+    echo -e "${YELLOW}⚠️  Warning: pycdlib not found${NC}"
+    echo -e "${YELLOW}   Install with: pip3 install pycdlib${NC}"
+    echo -e "${YELLOW}   The app will still run but with limited ISO creation options${NC}"
+    echo ""
+fi
+
+# Check for system dependencies
+echo -e "${YELLOW}🔍 Checking system dependencies...${NC}"
+
+if ! command -v wimlib-imagex &> /dev/null; then
+    echo -e "${YELLOW}⚠️  Warning: wimlib-imagex not found${NC}"
+    echo -e "${YELLOW}   Install with: brew install wimlib${NC}"
+fi
+
+if ! command -v hivexsh &> /dev/null; then
+    echo -e "${YELLOW}⚠️  Warning: hivexsh not found${NC}"
+    echo -e "${YELLOW}   Install with: brew install hivex${NC}"
+fi
+
+if ! command -v mkisofs &> /dev/null && ! command -v genisoimage &> /dev/null; then
+    echo -e "${YELLOW}⚠️  Warning: No ISO creation tools found${NC}"
+    echo -e "${YELLOW}   Install with: brew install cdrtools${NC}"
+fi
+
+echo ""
+echo -e "${GREEN}🚀 Launching Windows 11 Boot Camp ISO Patcher...${NC}"
+echo -e "${YELLOW}   (Close the terminal window to stop the application)${NC}"
+echo ""
+
+# Launch the application
+python3 main.py
+
+echo ""
+echo -e "${BLUE}👋 Application closed${NC}" 
